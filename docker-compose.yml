@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    restart: always
+    expose:
+      - 3306
+    volumes:
+      - ./mysql/data:/var/lib/mysql/data
+
+  application:
+    image: local_registry.com/application:latest
+    restart: always
+    depends_on:
+      - mysql
+    expose:
+      - 8080
+    volumes:
+      - ./app/data:/app/data
+      - ./app/config/:/app/config
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    depends_on:
+      - application
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/logs:/var/logs/nginx
